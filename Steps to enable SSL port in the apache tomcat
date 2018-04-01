@@ -1,0 +1,38 @@
+Steps to Enable the SSL port in apache tomcat server
+
+Step1 - Creating the keystore
+Keytool.exe included in JDK will create the keystore. 
+Command to create keystore: 
+$JAVA_HOME/bin/keytool -genkey -alias [youralias] -keyalg RSA -keystore [keystore path along with file name with .txt or any other extension]
+Enter password: [passsword] 
+Don’t forget the password. This is the password which will be associated with the keystore and required for the further steps.
+
+Step 2 - Creating the CSR (Certificate Signing Request)
+Now the CSR file has to be created, which will be used by CA (Certificate Authority) to generate certificate SSL.
+Command to generate csr file:
+$JAVA_HOME/bin/keytool -certreq -keyalg RSA -alias [youralias] -file [yourcertificatname].csr -keystore [path of your keystore]
+Enter password: [passsword] 
+Enter the same password as created in the first step.
+Now submit the csr file to the CA to generate the custom certificate for our server.
+
+Step 3 - Installing New Certificate
+Now check for the root certificate associated with your new certificate and import both of them to keystore.
+Command to import Root certificate:
+$JAVA_HOME/bin/keytool -import -alias root -keystore [path of your keystore] -trustcacerts -file [path of your root certificate]
+Command to import your new certificate:
+$JAVA_HOME/bin/keytool -import -alias [youralias] -keystore [path of your keystore] -file [path of your new certificate]
+
+Step 4 - Configuring Tomcat to use SSL
+In the server.xml file of apache tomcat. Search for the connector port 8443 and uncomment those lines and some additional information to allow tomcat to find your keystore.
+<Connector port="8443" protocol="org.apache.coyote.http11.Http11NioProtocol" maxThreads="150" SSLEnabled="true" scheme="https" secure="true" keystoreFile=[path of your keystore]  keystorePass=[password] keyAlias=[youralias] clientAuth="false" sslProtocol="TLS" />
+If you want to mask the port from the url then change the port from 8443 to 443. 443 is the default port for https. Now your url will be clean and ssl enabled. [You can comment the connector port 8080]
+For Detailed information refer the link below
+https://www.mulesoft.com/tcat/tomcat-ssl
+
+
+
+
+
+
+
+ 
